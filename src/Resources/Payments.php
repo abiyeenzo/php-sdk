@@ -16,6 +16,8 @@ use CamerPay\HttpClient;
  */
 final class Payments
 {
+    private const ALLOWED_SCHEMES = ['https'];
+
     public function __construct(private readonly HttpClient $http) {}
 
     /**
@@ -37,11 +39,14 @@ final class Payments
      *  - source          (string) Tag origine
      *
      * @param array<string, mixed> $data
-     * @return array{success: bool, transaction_uuid: string, status: string, pay_url: string, redirect_url: string}
+     * @return array<string, mixed>
      */
     public function initiate(array $data): array
     {
         $this->validateRequired($data, ['amount', 'merchant_invoice_id', 'merchant_callback_url', 'merchant_return_url']);
+
+        $this->validateHttpsUrl($data['merchant_callback_url'], 'merchant_callback_url');
+        $this->validateHttpsUrl($data['merchant_return_url'], 'merchant_return_url');
 
         return $this->http->post('/payment/initiate', $data);
     }
@@ -82,6 +87,18 @@ final class Payments
             throw new \InvalidArgumentException(
                 'Missing required fields: ' . implode(', ', $missing)
             );
+        }
+    }
+
+    /** @throws \InvalidArgumentException */
+    private function validateHttpsUrl(string $url, string $fieldName): void
+    {
+        $parsed = parse_url($url);
+        if ($parsed === false || !isset($parsed['scheme'], $parsed['host'])) {
+            throw new \InvalidArgumentException("{$fieldName} must be a valid URL.");
+        }
+        if (!in_array($parsed['scheme'], self::ALLOWED_SCHEMES, true)) {
+            throw new \InvalidArgumentException("{$fieldName} must use HTTPS (got {$parsed['scheme']}).");
         }
     }
 }

@@ -1,10 +1,30 @@
+# composer
 /vendor/
-/composer.lock
-/.phpunit.cache/
-/.phpunit.result.cache
-/coverage/
+composer.lock
+
+# phpunit
+.phpunit.cache/
+.phpunit.result.cache
+
+# IDE
 /.idea/
 /.vscode/
-/.DS_Store
-/Thumbs.db
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# env (jamais committer ces fichiers)
+.env
+.env.local
+.env.*.local
+
+# logs
 *.log
+logs/
+
+# coverage
+/coverage/
+*.cov

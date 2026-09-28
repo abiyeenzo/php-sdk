@@ -23,6 +23,8 @@ use CamerPay\HttpClient;
  */
 final class Payouts
 {
+    private const ALLOWED_SCHEMES = ['https'];
+
     public function __construct(private readonly HttpClient $http) {}
 
     /**
@@ -45,6 +47,10 @@ final class Payouts
             throw new \InvalidArgumentException('Max 100 beneficiaries per batch (BEAC limit)');
         }
 
+        if (isset($data['callback_url'])) {
+            $this->validateHttpsUrl($data['callback_url'], 'callback_url');
+        }
+
         return $this->http->post('/payouts/batch', $data);
     }
 
@@ -56,5 +62,17 @@ final class Payouts
     public function getBatch(string $batchUuid): array
     {
         return $this->http->get('/payouts/batch/' . $batchUuid);
+    }
+
+    /** @throws \InvalidArgumentException */
+    private function validateHttpsUrl(string $url, string $fieldName): void
+    {
+        $parsed = parse_url($url);
+        if ($parsed === false || !isset($parsed['scheme'], $parsed['host'])) {
+            throw new \InvalidArgumentException("{$fieldName} must be a valid URL.");
+        }
+        if (!in_array($parsed['scheme'], self::ALLOWED_SCHEMES, true)) {
+            throw new \InvalidArgumentException("{$fieldName} must use HTTPS (got {$parsed['scheme']}).");
+        }
     }
 }

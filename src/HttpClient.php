@@ -25,7 +25,7 @@ use CamerPay\Exceptions\ValidationException;
  *  - 5xx      -> ServerException
  *  - autre    -> CamerPayException generique
  */
-final class HttpClient
+class HttpClient
 {
     public function __construct(
         private readonly string $apiKey,

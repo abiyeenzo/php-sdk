@@ -56,7 +56,7 @@ final class CamerPay
         }
 
         $this->http = new HttpClient(
-            apiKey:  $apiKey,
+            apiKey: $apiKey,
             baseUrl: rtrim($baseUrl, '/'),
             timeout: $timeout,
         );
